@@ -1,63 +1,64 @@
 <template>
+    <audio ref="audioElement" :src="soundFile"></audio>
     <div class="calculator" @keydown="handleKeyDown" tabindex="0">
         <h1>Calculator</h1>
         <input type="text" id="result" v-model="inputVal" disabled />
         <div class="row-def">
-            <button class="opearator clear" @click="clear">
+            <button class="opearator clear" @click="clear(), playSound()">
                 <i class="fa-solid fa-c"></i>
             </button>
-            <button class="operator remove" @click="removeOne">
+            <button class="operator remove" @click="removeOne(), playSound()">
                 <i class="fa-solid fa-delete-left"></i>
             </button>
-            <button class="operator square" @click="square">χ2</button>
-            <button class="operator sqrt" @click="sqrt">
+            <button class="operator square" @click="square(), playSound()">χ2</button>
+            <button class="operator sqrt" @click="sqrt(), playSound()">
                 <i class="fa-sharp fa-solid fa-square-root-variable"></i>
             </button>
         </div>
         <div class="row">
-            <button class="numbers" @click="addNum(7)">7</button>
-            <button class="numbers" @click="addNum(8)">8</button>
-            <button class="numbers" @click="addNum(9)">9</button>
-            <button class="operator plus" @click="action('plus')">
+            <button class="numbers" @click="addNum(7), playSound()">7</button>
+            <button class="numbers" @click="addNum(8), playSound()">8</button>
+            <button class="numbers" @click="addNum(9), playSound()">9</button>
+            <button class="operator plus" @click="action('plus'), playSound()">
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
         <div class="row">
-            <button class="numbers" @click="addNum(4)">4</button>
-            <button class="numbers" @click="addNum(5)">5</button>
-            <button class="numbers" @click="addNum(6)">6</button>
-            <button class="operator minus" @click="action('minus')">
+            <button class="numbers" @click="addNum(4), playSound()">4</button>
+            <button class="numbers" @click="addNum(5), playSound()">5</button>
+            <button class="numbers" @click="addNum(6), playSound()">6</button>
+            <button class="operator minus" @click="action('minus'), playSound()">
                 <i class="fa-solid fa-minus"></i>
             </button>
         </div>
         <div class="row">
-            <button class="numbers" @click="addNum(1)">1</button>
-            <button class="numbers" @click="addNum(2)">2</button>
-            <button class="numbers" @click="addNum(3)">3</button>
-            <button class="operator mult" @click="action('mult')">
+            <button class="numbers" @click="addNum(1), playSound()">1</button>
+            <button class="numbers" @click="addNum(2), playSound()">2</button>
+            <button class="numbers" @click="addNum(3), playSound()">3</button>
+            <button class="operator mult" @click="action('mult'), playSound()">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
         <div class="row">
             <div>
-                <button class="numbers zero" @click="addNum(0)" :disabled="disableZero">0</button>
-                <button class="numbers dot" @click="addNum('.')" :disabled="buttonClicked">.</button>
+                <button class="numbers zero" @click="addNum(0), playSound()" :disabled="disableZero">0</button>
+                <button class="numbers dot" @click="addNum('.'), playSound()" :disabled="buttonClicked">.</button>
             </div>
             <div>
-                <button class="operator div" @click="action('div')">
+                <button class="operator div" @click="action('div'), playSound()">
                     <i class="fa-solid fa-divide"></i>
                 </button>
             </div>
         </div>
         <div class="row-def">
-            <button class="operator factorial" @click="factorial">
+            <button class="operator factorial" @click="factorial(), playSound()">
                 x <i class="fa-solid fa-exclamation"></i>
             </button>
-            <button class="operator" @click="pi">π</button>
-            <button class="operator" @click="neg">
+            <button class="operator" @click="pi(), playSound()">π</button>
+            <button class="operator" @click="neg(), playSound()">
                 <i class="fa-solid fa-plus-minus"></i>
             </button>
-            <button class="operator equal" @click="equal">
+            <button class="operator equal" @click="equal(), playSound()">
                 <i class="fa-solid fa-equals"></i>
             </button>
         </div>
@@ -65,6 +66,7 @@
 </template>
 
 <script>
+import soundFile from "@/assets/soundFile.mp3";
 export default {
     data() {
         return {
@@ -72,7 +74,8 @@ export default {
             res: 0,
             actionType: "",
             buttonClicked: false,
-            disableZero: true
+            disableZero: true,
+            soundFile: soundFile
         };
     },
     methods: {
@@ -86,6 +89,7 @@ export default {
         clear() {
             this.inputVal = 0;
             this.disableZero = true;
+            this.buttonClicked = false;
         },
         action(act) {
             this.buttonClicked = false;
@@ -118,7 +122,8 @@ export default {
             if (this.actionType === "plus") {
                 this.inputVal = parseFloat(this.res) + parseFloat(this.inputVal);
             } else if (this.actionType === "minus") {
-                this.inputVal = parseFloat(this.res) - parseFloat(this.inputVal)
+                let val = parseFloat(this.res) - parseFloat(this.inputVal)
+                this.inputVal = Number.isInteger(val) ? val : val.toFixed(2);
             } else if (this.actionType === "mult") {
                 this.inputVal = parseFloat(this.res) * parseFloat(this.inputVal);
             } else if (this.actionType === "div") {
@@ -130,6 +135,11 @@ export default {
         },
         removeOne() {
             this.inputVal = ("" + this.inputVal).slice(0, -1);
+            if (this.inputVal == 0) {
+                this.inputVal = 0
+                this.disableZero = true
+                this.buttonClicked = false;
+            }
         },
         handleKeyDown(event) {
             const key = event.key;
@@ -162,6 +172,9 @@ export default {
                 }
             }
         },
+        playSound() {
+            this.$refs.audioElement.play();
+        }
     },
 };
 </script>
@@ -189,6 +202,10 @@ body {
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    touch-action: none;
+    user-select: none;
+    zoom: 1.0;
+    max-zoom: 1.0;
 }
 
 .calculator h1 {
